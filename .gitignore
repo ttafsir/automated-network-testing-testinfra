@@ -1,0 +1,24 @@
+.tox
+.pyc
+.pytest_cache
+__pycache__
+
+.venv
+.env
+
+*.log
+
+inventory/*
+!inventory/group_vars
+!inventory/host_vars
+!inventory/intended
+!inventory/documentation
+!inventory/hosts.yml
+
+.eve-ng
+*.local
+
+
+# reports
+report.md
+report.html

@@ -1,0 +1,95 @@
+name: test deployment
+
+on:
+  push:
+    branches:
+      - infra_tests
+  workflow_dispatch:
+
+jobs:
+  build_deps:
+    runs-on: [self-hosted]
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Configure pip caching
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install PYPI dependencies
+        run: |
+          pip install pytest-md pytest-html pytest-emoji
+          pip install -r .devcontainer/requirements-all.txt
+
+      - name: Install Ansible dependencies
+        run: |
+          ansible-galaxy collection install -r .devcontainer/requirements.yml
+
+  test_clab:
+    runs-on: [self-hosted]
+    needs: build_deps
+    steps:
+      - name: build the containerlab network for non-prod branches
+        if: github.ref != 'refs/heads/main'
+        run: |
+          sudo containerlab deploy --topo containerlab/topology.yaml --reconfigure
+
+      - name: build AVD design and configs
+        run: |
+          ansible-playbook -i inventory playbooks/fabric-design.yaml
+
+      - name: deploy AVD configs
+        run: |
+          ansible-playbook -i inventory playbooks/fabric-deploy.yaml
+
+      - name: Inventory configuration for dev branches
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "ANSIBLE_INV_SRC=inventory.dev" >> $GITHUB_ENV
+
+      - name: Inventory configuration for main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "ANSIBLE_INV_SRC=inventory" >> $GITHUB_ENV
+
+      - name: run tests
+        id: test
+        run: |
+          pytest tests/infra  -n 4 \
+          --emoji \
+          --md report.md \
+          --html=report.html \
+          --self-contained-html \
+          --inventory-path="${{ env.ANSIBLE_INV_SRC }}"
+        env:
+          ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
+          ANSIBLE_PASSWORD: ${{ secrets.ANSIBLE_PASSWORD }}
+        continue-on-error: true
+
+      - name: Add markdown job summary
+        run: cat report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: upload report.html artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-test-report
+          path: report.html
+
+      - name: Destroy topology
+        run: |
+          sudo containerlab destroy --topo containerlab/topology.yaml
+        continue-on-error: true
+
+      - name: Test Track Status
+        if: steps.test.outcome == 'failure'
+        run: exit 1
