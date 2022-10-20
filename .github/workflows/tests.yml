@@ -35,17 +35,14 @@ jobs:
         run: |
           ansible-galaxy collection install -r .devcontainer/requirements.yml
 
-  install_clab:
-    if: github.ref != 'refs/heads/main'
+  test:
+    needs: [build_deps]
     runs-on: ubuntu-latest
     steps:
       - name: install containerlab
+        if: github.ref != 'refs/heads/main'
         run: bash -c "$(curl -sL https://get.containerlab.dev)"
 
-  test:
-    runs-on: ubuntu-latest
-    needs: [build_deps, install_clab]
-    steps:
       - name: build the containerlab network for non-prod branches
         if: github.ref != 'refs/heads/main'
         run: |
