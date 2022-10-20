@@ -46,7 +46,9 @@ jobs:
       - name: build the containerlab network for non-prod branches
         if: github.ref != 'refs/heads/main'
         run: |
-          sudo containerlab deploy --topo containerlab/topology.yaml --reconfigure
+          echo "${PWD}"
+          echo "$(ls -la)"
+          containerlab deploy --topo containerlab/topology.yaml --reconfigure
 
       - name: build AVD design and configs
         run: |
