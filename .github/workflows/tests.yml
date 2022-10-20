@@ -35,10 +35,6 @@ jobs:
         run: |
           ansible-galaxy collection install -r .devcontainer/requirements.yml
 
-  test:
-    needs: [build_deps]
-    runs-on: ubuntu-latest
-    steps:
       - name: install containerlab
         if: github.ref != 'refs/heads/main'
         run: bash -c "$(curl -sL https://get.containerlab.dev)"
