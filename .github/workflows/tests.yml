@@ -48,7 +48,7 @@ jobs:
         run: |
           echo "${PWD}"
           echo "$(ls -la)"
-          containerlab deploy --topo containerlab/topology.yaml --reconfigure
+          sudo containerlab deploy --topo containerlab/topology.yaml --reconfigure
 
       - name: build AVD design and configs
         run: |
