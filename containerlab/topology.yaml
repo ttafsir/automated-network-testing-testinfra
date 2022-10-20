@@ -72,14 +72,14 @@ topology:
     - endpoints: ["svc2b:eth6", "l2leaf2b:eth2"]
     - endpoints: ["l2leaf2a:eth3", "l2leaf2b:eth3"]
     - endpoints: ["l2leaf2a:eth4", "l2leaf2b:eth4"]
-    - endpoints: ["leaf1a:eth5", "client1:eth1"]
-    - endpoints: ["leaf1b:eth5", "client1:eth2"]
-    - endpoints: ["leaf1a:eth6", "client2:eth1"]
-    - endpoints: ["leaf1b:eth6", "client2:eth2"]
-    - endpoints: ["l2leaf2a:eth5", "client3:eth1"]
-    - endpoints: ["l2leaf2b:eth5", "client3:eth2"]
-    - endpoints: ["l2leaf2a:eth6", "client4:eth1"]
-    - endpoints: ["l2leaf2b:eth6", "client4:eth2"]
+    # - endpoints: ["leaf1a:eth5", "client1:eth1"]
+    # - endpoints: ["leaf1b:eth5", "client1:eth2"]
+    # - endpoints: ["leaf1a:eth6", "client2:eth1"]
+    # - endpoints: ["leaf1b:eth6", "client2:eth2"]
+    # - endpoints: ["l2leaf2a:eth5", "client3:eth1"]
+    # - endpoints: ["l2leaf2b:eth5", "client3:eth2"]
+    # - endpoints: ["l2leaf2a:eth6", "client4:eth1"]
+    # - endpoints: ["l2leaf2b:eth6", "client4:eth2"]
 
 mgmt:
   network: ceos_clab
