@@ -3,20 +3,20 @@ name: test deployment
 on:
   push:
     branches:
-      - infra_tests
+      - ci_test
   workflow_dispatch:
 
 jobs:
   build_deps:
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout this repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.9"
 
       - name: Configure pip caching
         uses: actions/cache@v2
@@ -35,8 +35,15 @@ jobs:
         run: |
           ansible-galaxy collection install -r .devcontainer/requirements.yml
 
-  test_clab:
-    runs-on: [self-hosted]
+  install_clab:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: install containerlab
+        run: bash -c "$(curl -sL https://get.containerlab.dev)"
+
+  test:
+    runs-on: ubuntu-latest
     needs: build_deps
     steps:
       - name: build the containerlab network for non-prod branches
